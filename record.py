@@ -180,7 +180,7 @@ def create_speech(wordmap, sentence):
   return None;
 
 
-sentence = "konichiwa watashitachiwa sukuki isi desu ";
+sentence = "konichiwa watashitachiwa sukuki ishi tesu ";
 wordmap = create_wordmap();
 speech = create_speech(wordmap, sentence);
 if speech != None:

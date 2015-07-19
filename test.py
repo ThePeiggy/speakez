@@ -33,7 +33,7 @@ def create_speech(wordmap, sentence):
 from pydub import AudioSegment
 from pydub.playback import play
 
-sentence = "kasachini watashi";
+sentence = "konichiwa watashitachiwa sukuki ishi tesu";
 wordmap = create_wordmap();
 speech = create_speech(wordmap, sentence);
 if speech != None:
