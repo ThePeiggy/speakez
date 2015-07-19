@@ -1,5 +1,9 @@
 def create_wordmap():
-	wordmap = {"mo":"japsounds/mo.wav", "shi" : "japsounds/shi.wav"};
+	sounds = ["a", "i", "u", "e", "o", "ha", "hi", "fu", "he", "ho", "ka", "ki", "ku", "ke", "ko", "ma", "mi", "mu", "me", "mo", "sa", "shi", "su", "se", "so", "ya", "yu", "yo", "ta", "chi", "tsu", "te", "to", "ra", "ri", "ru", "re", "ro", "na", "ni", "nu", "ne", "no", "wa", "wi", "we", "wo"];
+	wordmap = {" ":"japsounds/blank.wav"};
+	for sound in sounds:
+		wordmap[sound] = "japsounds/" + sound + ".wav";
+
 	return wordmap;
 
 def create_speech(wordmap, sentence):
@@ -29,7 +33,7 @@ def create_speech(wordmap, sentence):
 from pydub import AudioSegment
 from pydub.playback import play
 
-sentence = "moshimoshi";
+sentence = "kasachini watashi";
 wordmap = create_wordmap();
 speech = create_speech(wordmap, sentence);
 if speech != None:
