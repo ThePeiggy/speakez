@@ -1,7 +1,9 @@
+
 import __future__
 import pyaudio
 import wave
-
+from pydub import AudioSegment
+from pydub.playback import play
 
 CHUNK = 14700 
 FORMAT = pyaudio.paInt16 #paInt8
@@ -43,71 +45,82 @@ p = pyaudio.PyAudio()
 # Dictionary of all words needed for the tonal dictonary
 # Structure of the Dictionary(key = word containing tone(s) 
 # value = array of tones for that word)
-wordsdict = {'tomorrow': ['to','mo','rrow'] , 
-      'she': ['she'],
-      'knee': ['knee'],
-      'home':['ho','me'] }
+wordsdict = { 'coke' : ['co','ke'], 
+              'knee' : ['knee'], 
+              'cheat' : ['chea','t'], 
+              'water' : ['wa','ter'], 
+              'tahoe' : ['ta','hoe'],
+              'she' : ['she'], 
+              'death' : ['dea','th'], 
+              'super' : ['su','per'],
+              'koo' : ['koo'],
+              'key' : ['key'],
+              'sea' : ['sea'],
+              'e' : ['e'] }
 
 # Debugging input line to allow developer to test specific words in tonal dictionary
-word = str(raw_input('Enter word to consider: ')).strip(" ")
+#word = str(raw_input('Enter word to consider: ')).strip(" ")
 
-# Array of tones within the word being considered
-word_arr = wordsdict[word]
+for word in wordsdict:
 
-# Number of tones within tone array
-WORD_LENGTH = len(word_arr)
+  # Array of tones within the word being considered
+  word_arr = wordsdict[word]
 
-#print WORD_LENGTH
+  # Number of tones within tone array
+  WORD_LENGTH = len(word_arr)
 
-# Inform user what word is to be shown for tonal recording
-print ("The word is " + word)
+  #print WORD_LENGTH
 
-# Instruction for user to only say the highlighted tone within the word
-rec = raw_input("Speak the capitalized portion of the word when prompted.")
+  # Inform user what word is to be shown for tonal recording
+  print ("The word is " + word)
 
-# Hitting "ENTER" begins the recording
-if (rec == ''):
-  stream = p.open(format=FORMAT,
-                channels=CHANNELS,
-                rate=RATE,
-                input=True,
-                frames_per_buffer=CHUNK) #buffer
+  # Instruction for user to only say the highlighted tone within the word
+  rec = raw_input("Speak the capitalized portion of the word when prompted.\nPress Enter when ready")
 
-frames = []
-#hframes = [h]
+  rec = ''
+  # Hitting "ENTER" begins the recording
+  if (rec == ''):
+    stream = p.open(format=FORMAT,
+                  channels=CHANNELS,
+                  rate=RATE,
+                  input=True,
+                  frames_per_buffer=CHUNK) #buffer
 
-# For loop for each tone within the current word
-for tone in range(0,WORD_LENGTH):
-  # For loop for each recording segment of each tone
-  for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
-    data = stream.read(CHUNK)
-    #hdata = [h,stream.read(CHUNK)]
-    #print i
-
-    if (i == 0):
-      left = ''
-
-      # For loop highlighting the specific tone being recorded currently
-      # The tone in all caps is the tone being recorded
-      for j in range(0,WORD_LENGTH):
-        if (j == tone):
-          left += word_arr[j].upper() + " "
-        else:
-          left += word_arr[j] + " "
-      print left
-    frames.append(data) # 2 bytes(16 bits) per CHANNELS
-  #frames = trim(frames)
-
-  # Save the tonal recording as the tone_name.wav
-  wf = wave.open(word_arr[tone]+".wav",'wb')
-  wf.setnchannels(CHANNELS)
-  wf.setsampwidth(p.get_sample_size(FORMAT))
-  wf.setframerate(RATE)
-  wf.writeframes(b''.join(frames))
-  wf.close()
-
-  # Reset the recording in preparation for the next tone
   frames = []
+  #hframes = [h]
+
+  # For loop for each tone within the current word
+  for tone in range(0,WORD_LENGTH):
+    # For loop for each recording segment of each tone
+    for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
+      data = stream.read(CHUNK)
+      #hdata = [h,stream.read(CHUNK)]
+      #print i
+
+      if (i == 0):
+        left = ''
+
+        # For loop highlighting the specific tone being recorded currently
+        # The tone in all caps is the tone being recorded
+        for j in range(0,WORD_LENGTH):
+          if (j == tone):
+            left += word_arr[j].upper() + " "
+          else:
+            left += word_arr[j] + " "
+        print left
+      frames.append(data) # 2 bytes(16 bits) per CHANNELS
+    #frames = trim(frames)
+
+    # Save the tonal recording as the tone_name.wav
+    wf = wave.open(word_arr[tone]+".wav",'wb')
+    wf.setnchannels(CHANNELS)
+    wf.setsampwidth(p.get_sample_size(FORMAT))
+    wf.setframerate(RATE)
+    wf.writeframes(b''.join(frames))
+    wf.close()
+
+    # Reset the recording in preparation for the next tone
+    frames = []
 
 
 
@@ -135,3 +148,42 @@ wf.setsampwidth(p.get_sample_size(FORMAT))
 wf.setframerate(RATE)
 wf.writeframes(b''.join(frames))
 wf.close()"""
+
+def create_wordmap():
+  sounds = ["a", "i", "u", "e", "o", "ha", "hi", "fu", "he", "ho", "ka", "ki", "ku", "ke", "ko", "ma", "mi", "mu", "me", "mo", "sa", "shi", "su", "se", "so", "ya", "yu", "yo", "ta", "chi", "tsu", "te", "to", "ra", "ri", "ru", "re", "ro", "na", "ni", "nu", "ne", "no", "wa", "wi", "we", "wo"];
+  wordmap = {" ":"japsounds/blank.wav"};
+  for sound in sounds:
+    wordmap[sound] = "japsounds/" + sound + ".wav";
+
+  return wordmap;
+
+def create_speech(wordmap, sentence):
+  speech_array = [];
+  while len(sentence) > 0:
+    found = False;
+    for key, value in wordmap.iteritems():
+      index = sentence.find(key);
+      if index == 0:
+        print key;
+        found = True;
+        seg = AudioSegment.from_wav(value);
+        speech_array.append(seg);
+        sentence = sentence[len(key):];
+        break;
+
+    if not found:
+      print("Input Error");
+      break;
+  if len(speech_array) > 0:
+    return sum(speech_array[1:], speech_array[0]);
+
+  return None;
+
+
+sentence = "konichiwa watashitachiwa sukuki isi desu ";
+wordmap = create_wordmap();
+speech = create_speech(wordmap, sentence);
+if speech != None:
+  speech.export("speech.wav", format="wav");
+else:
+  print "Invalid Input";
